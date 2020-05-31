@@ -1,0 +1,167 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{Nfacture}[2020/04/30 Mise en forme de factures]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Required packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RequirePackage{xcolor}
+\RequirePackage{pgf}
+\RequirePackage{geometry}
+\RequirePackage{colortbl}
+\RequirePackage{graphics}
+\RequirePackage{tabulary}
+\RequirePackage[export]{adjustbox}
+\RequirePackage{hyperref}
+\RequirePackage{calc}
+\RequirePackage{fmtcount}
+\RequirePackage{xstring}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Metadata storage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\logo#1{\def\@logo{#1}}
+\def\to#1{\def\@to{#1}}
+\def\author#1{\def\@author{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Utility functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\courriel#1{\href{mailto:#1}{#1}}
+
+\def\ctd#1{%
+	\newcount\dolars
+	\advance\dolars by #1
+	\divide\dolars by 100
+	\newcount\dolarsincent
+	\advance\dolarsincent by \dolars
+	\multiply\dolarsincent by 100
+	\newcount\cent
+	\advance\cent by #1
+	\advance\cent by -\dolarsincent
+	\number\dolars,\ifnum\cent<10{0\number\cent}\else{\number\cent}\fi\ \$%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Heading functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\factHead{%
+\setlength\parindent{0pt}
+\begin{minipage}[t]{\widthof{\@logo} + 4mm}
+	\@logo
+\end{minipage}
+\begin{minipage}[t]{0.4\textwidth}
+\flushleft
+\@author
+\end{minipage}
+\hfill {\LARGE \bfseries\sffamily \@title}
+\par\vspace{\baselineskip}
+\hfill Date: \today
+\par\vspace{\baselineskip}
+}
+
+\def\blocClient#1{%
+{\sffamily #1\ : \hspace{4mm}}%
+\begin{minipage}[t]{0.5\textwidth}
+	\@to
+\end{minipage}
+}
+
+\def\maketitle{%
+\sf
+\factHead
+\blocClient{Facturé à}
+\par\vspace{\baselineskip}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Invoice table macro
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{facture}
+{
+	\newcount\centtotal
+	\newcount\centsolde
+	\newcount\centdu
+	\centering
+	\sf%
+	\begin{tabular}{cp{6.5cm}ccc}
+		\hline
+		\rowcolor{black!80} {\color{white}Date} & \ {\color{white}Activité}&  \color{white}Durée & \color{white}Tarif & \color{white}Montant\\
+		\hline
+		\arrayrulecolor{black!25}
+}
+{
+	\global\advance\centdu by \centtotal
+	& & &\multicolumn{1}{r}{Total: }& \ctd{\number\centtotal}\\
+		& &  \multicolumn{2}{r}{Solde précédent: }& \ctd{\number\centsolde}\\
+		& & &\multicolumn{1}{r}{\bfseries\sffamily Somme due: }& \bfseries\sffamily \ctd{\number\centdu}\\
+\end{tabular}
+\vfill
+{\hfill \footnotesize Non assujetti à la TPS et à la TVQ. Petit fournisseur ayant un chiffre d’affaires inférieur à 30 000 \$/année.\hfill}
+}
+
+
+\newcommand{\activiteF}[3]{%
+	\global\newcount\centlinetotal
+	\global\advance\centlinetotal by #3
+	\global\multiply\centlinetotal by 100
+	\global\advance\centtotal by \centlinetotal
+	#1 & #2 & & & \ctd{\number\centlinetotal}\\
+	\hline
+	}
+
+	\newcommand{\activiteM}[4]{%
+		\global\newcount\centlinetotal
+		\global\advance\centlinetotal by #3
+		\global\multiply\centlinetotal by #4
+		\global\multiply\centlinetotal by 100
+		\global\divide\centlinetotal by 60
+		\global\advance\centtotal by \centlinetotal
+		#1 & #2 & #3\ min. & #4\ \$/h & \ctd{\number\centlinetotal}\\
+		\hline
+		}
+
+\newcommand{\solde}[1]{%
+	\global\advance\centsolde by #1
+	\global\advance\centdu by #1
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macro pour reçu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\centsmots#1{%
+		\newcount\dollars
+		\newcount\cents
+		\newcount\dollarsincent
+
+		\advance\dollars by #1
+		\divide\dollars by 100
+		\advance\dollarsincent by \dollars
+		\multiply\dollarsincent by 100
+		\advance\cents by #1
+		\advance\cents by -\dollarsincent
+		\Numberstringnum{\number\dollars} dollars \ifnum\cents>0 et \number\cents\ cents\fi% 
+}
+
+\newcommand{\recu}[3]{%
+\renewcommand{\arraystretch}{2.4}
+\centering
+	\begin{tabular}{lp{8.5cm}l}
+		Reçu de: & \begin{minipage}[t]{9.5cm}#1\end{minipage} & \\
+			La somme de de: \rule{3mm}{0pt}& {\normalsize\centsmots{#2}} \hrulefill &	{\normalsize(\ctd{#2} \$)}\\
+		Pour: & \begin{minipage}[t]{9.5cm}#3\end{minipage} & \\
+		Signature: & \rule{0pt}{1.7cm}\hrulefill & \\
+	\end{tabular}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Styling
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hypersetup{colorlinks=true, urlcolor=cyan!70!black}
+\renewcommand{\arraystretch}{1.6}

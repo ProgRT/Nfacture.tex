@@ -1,0 +1,26 @@
+\documentclass{Nfacture}
+\usepackage[french]{babel}
+
+\def\nameskip{0.4\baselineskip}
+
+\author{\input{myaddress}}
+\to{\input{address2}}
+\logo{\includegraphics[height=5\baselineskip, valign=t]{Debit.pdf}}
+
+\begin{document}
+\maketitle
+
+\begin{facture}
+	\solde{123}
+	\activiteM{2020-04-30}{Consultation téléphonique}{17}{80}
+	\activiteM{2020-05-20}{Consultation téléphonique}{45}{80}
+	\activiteM{2020-05-20}{Consultation téléphonique}{120}{80}
+	\activiteF{2020-05-20}{Déplacement}{80}
+	\activiteM{2020-05-20}{Consultation téléphonique}{120}{80}
+	\activiteM{2020-05-20}{Consultation téléphonique}{120}{80}
+	\activiteM{2020-05-20}{Consultation téléphonique}{120}{80}
+	\activiteM{2020-05-20}{Consultation téléphonique}{120}{80}
+	\activiteM{2020-05-20}{Consultation téléphonique}{120}{80}
+	\activiteM{2020-05-20}{Consultation téléphonique}{120}{80}
+\end{facture}
+\end{document}
